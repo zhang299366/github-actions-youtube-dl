@@ -12,14 +12,14 @@ jobs:
       - name: download
         run: |
           sudo apt-get update
-          sudo apt-get install tar wget -y
+          sudo apt-get install tar libssl-dev wget -y
           git remote set-url origin https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git pull --rebase
           wget https://github.com/aria2/aria2/releases/download/release-1.35.0/aria2-1.35.0.tar.gz
           tar zxvf aria2-1.35.0.tar.gz
           cd aria2-1.35.0
           ./configure
-          ./make
+          make
           ./src/aria2c 'magnet:?xt=urn:btih:2c623a579394b5afa55bcad6cd1df90c97687310&dn=%e9%98%b3%e5%85%89%e7%94%b5%e5%bd%b1www.ygdy8.com.%e6%8b%86%e5%bc%b9%e4%b8%93%e5%ae%b62.HD.1080p.%e5%9b%bd%e8%af%ad%e4%b8%ad%e5%ad%97.mkv&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce&tr=udp%3a%2f%2fexplodie.org%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969%2fannounce'
           echo "Build Success"
           zip -s 1984m downloaded.zip ./*.mkv
