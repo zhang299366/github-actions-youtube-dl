@@ -1,0 +1,45 @@
+name: BT3
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: download
+        run: |
+          sudo apt-get update
+          sudo apt-get install tar libssl-dev wget -y
+          git remote set-url origin https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git pull --rebase
+          wget https://github.com/aria2/aria2/releases/download/release-1.35.0/aria2-1.35.0.tar.gz
+          tar zxvf aria2-1.35.0.tar.gz
+          cd aria2-1.35.0
+          ./configure
+          make
+          ./src/aria2c -d ./down -x 5 'magnet:?xt=urn:btih:11C52B8A3C0D22A0E2594A9892F91ABC2A2003B8'
+          echo "Build Success"
+          zip -s 1984m downloaded.zip ./down/*.mp4
+          cat "play.list" >> body.md
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.run_id }}
+          release_name: Release ${{ github.ref }}
+          body_path: body.md
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: dwenegar/upload-release-assets@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          release_id: ${{ steps.create_release.outputs.id }}
+          assets_path: ./downloaded.*
